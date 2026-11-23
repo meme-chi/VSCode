@@ -1,0 +1,483 @@
+/* --- 外部フォントの読み込み：画面に使うDM SansとNoto Sans JPを取得します --- */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap");
+
+/* --- ページ全体の基本設定 --- */
+:root {
+  /* 使用できる配色を明るいテーマに固定します */
+  color-scheme: light;
+  /* ページ全体の文字のフォントを指定します */
+  font-family: "DM Sans", "Noto Sans JP", sans-serif;
+  /* 基本の文字色を濃い緑がかった黒にします */
+  color: #242a24;
+  /* ページ全体の背景色を薄い緑がかった白にします */
+  background: #f4f6f1;
+  /* 指定した太さ以外のフォントを人工的に太くしない設定です */
+  font-synthesis: none;
+  /* テキストを滑らかに見せる設定です */
+  text-rendering: optimizeLegibility;
+  /* Windows以外のWebKit系ブラウザでも文字を滑らかに表示します */
+  -webkit-font-smoothing: antialiased;
+  /* MacのFirefoxなどで文字を滑らかに表示します */
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- 全要素共通の幅計算設定 --- */
+* {
+  /* paddingとborderを要素の幅に含めます */
+  box-sizing: border-box;
+}
+
+/* --- ページ本体のレイアウト --- */
+body {
+  /* ページの最小幅を320pxにして狭くなりすぎないようにします */
+  min-width: 320px;
+  /* ページの最小高さを画面の高さいっぱいにします */
+  min-height: 100vh;
+  /* ブラウザ既定の余白をなくします */
+  margin: 0;
+  /* 上下72px、左右20pxの内側余白を作ります */
+  padding: 72px 20px;
+  /* 左上に薄い楕円の光を重ねた背景を作ります */
+  background:
+    radial-gradient(ellipse at 12% 8%, rgba(196, 220, 187, 0.45), transparent 34%),
+    #f4f6f1;
+}
+
+/* --- アプリ全体を囲むカード --- */
+.todo-app {
+  /* 幅は画面の広さか600pxの小さい方にします */
+  width: min(100%, 600px);
+  /* 左右の余白を自動にしてカードを中央配置します */
+  margin: 0 auto;
+  /* カード内側に48pxの余白を作ります */
+  padding: 48px;
+  /* ごく薄い緑色の枠線を引きます */
+  border: 1px solid rgba(47, 69, 43, 0.08);
+  /* カードの角を丸くします */
+  border-radius: 24px;
+  /* カードの背景を白にします */
+  background: #fff;
+  /* カードの下に柔らかな影を付けます */
+  box-shadow: 0 18px 55px rgba(37, 54, 33, 0.08);
+}
+
+/* --- タイトル部分の下余白 --- */
+.app-header {
+  /* タイトルから次の内容まで32px空けます */
+  margin-bottom: 32px;
+}
+
+/* --- 小見出し「MY TASKS」のデザイン --- */
+.eyebrow {
+  /* 下だけ10px空け、上下左右の余白を指定します */
+  margin: 0 0 10px;
+  /* 小見出しの文字色を緑にします */
+  color: #66835f;
+  /* 文字を11pxにします */
+  font-size: 11px;
+  /* 太字にします */
+  font-weight: 700;
+  /* 文字と文字の間隔を広げます */
+  letter-spacing: 0.16em;
+}
+
+/* --- ページの大見出し --- */
+h1 {
+  /* 既定の余白をなくします */
+  margin: 0;
+  /* 幅に合わせて30px〜38pxの間で文字サイズを変えます */
+  font-size: clamp(30px, 7vw, 38px);
+  /* 太字にします */
+  font-weight: 700;
+  /* 文字の間隔を少し狭くします */
+  letter-spacing: -0.04em;
+}
+
+/* --- タイトル下の説明文 --- */
+.subtitle {
+  /* 上に10pxの余白を追加します */
+  margin: 10px 0 0;
+  /* 説明文を灰緑色にします */
+  color: #7a8178;
+  /* 文字を14pxにします */
+  font-size: 14px;
+}
+
+/* --- タスク入力欄と追加ボタンを囲む枠 --- */
+.task-form {
+  /* 入力欄とボタンを横並びにします */
+  display: flex;
+  /* 入力欄とボタンの間を10px空けます */
+  gap: 10px;
+  /* 枠の内側に7pxの余白を作ります */
+  padding: 7px;
+  /* 枠線を薄い灰緑色で引きます */
+  border: 1px solid #e6eae3;
+  /* 枠の角を丸くします */
+  border-radius: 13px;
+  /* 枠の背景を白に近い薄い色にします */
+  background: #fafbf9;
+  /* フォーカス時の枠色と影を滑らかに変化させます */
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+/* --- 入力欄が選択されている時の枠 --- */
+.task-form:focus-within {
+  /* 枠線を濃い緑にします */
+  border-color: #8ca785;
+  /* 外側に薄い緑の輪を表示します */
+  box-shadow: 0 0 0 3px rgba(112, 147, 103, 0.12);
+}
+
+/* --- タスクを入力するテキスト欄 --- */
+.task-form input {
+  /* 残りの横幅を入力欄が広く使います */
+  flex: 1;
+  /* 幅を0より縮められる設定にします */
+  min-width: 0;
+  /* 入力欄の上下左右に余白を作ります */
+  padding: 12px 13px;
+  /* 入力欄自体の枠線をなくします */
+  border: 0;
+  /* ブラウザ既定の選択枠をなくします */
+  outline: 0;
+  /* 親要素の背景を透過して見せます */
+  background: transparent;
+  /* ページと同じ文字色を使います */
+  color: inherit;
+  /* 親要素と同じフォント設定を使います */
+  font: inherit;
+  /* 入力文字を14pxにします */
+  font-size: 14px;
+}
+
+/* --- 入力欄に何もない時の案内文字 --- */
+.task-form input::placeholder {
+  /* 未入力時の案内文字を薄い灰色にします */
+  color: #a4aaa1;
+}
+
+/* --- タスク追加ボタン --- */
+.task-form button {
+  /* ボタンを縮ませず幅を保ちます */
+  flex-shrink: 0;
+  /* ボタンの上下余白をなくし左右に20px作ります */
+  padding: 0 20px;
+  /* ボタンの枠線をなくします */
+  border: 0;
+  /* ボタンの角を丸くします */
+  border-radius: 9px;
+  /* ボタンの背景を濃い緑にします */
+  background: #52764c;
+  /* ボタンの文字を白にします */
+  color: #fff;
+  /* 親要素と同じフォント設定を使います */
+  font: inherit;
+  /* ボタン文字を13pxにします */
+  font-size: 13px;
+  /* ボタン文字を太字にします */
+  font-weight: 600;
+  /* マウスカーソルを指マークにします */
+  cursor: pointer;
+  /* 背景色と押下時の動きを滑らかに変えます */
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+/* --- マウスを乗せた時の追加ボタン --- */
+.task-form button:hover {
+  /* ボタンの背景を少し濃い緑にします */
+  background: #41663b;
+}
+
+/* --- ボタンを押している間の追加ボタン --- */
+.task-form button:active {
+  /* ボタン全体を0.98倍に縮めます */
+  transform: scale(0.98);
+}
+
+/* --- 無効になったボタン共通の見た目 --- */
+.task-form button:disabled,
+.clear-completed:disabled {
+  /* 操作できないカーソルにします */
+  cursor: not-allowed;
+  /* ボタンを半透明にして無効状態を表します */
+  opacity: 0.55;
+}
+
+/* --- キーボード操作時のフォーカス枠 --- */
+.task-form button:focus-visible,
+.task-checkbox:focus-visible,
+.clear-completed:focus-visible {
+  /* 要素の周囲に緑色の輪郭を表示します */
+  outline: 3px solid rgba(82, 118, 76, 0.35);
+  /* 輪郭と要素の間に3pxの隙間を作ります */
+  outline-offset: 3px;
+}
+
+/* --- 保存状態を表示する文字 --- */
+.storage-status {
+  /* 上に12px、左右に2pxの余白を作ります */
+  margin: 12px 2px 0;
+  /* 保存状態を緑色の文字で表示します */
+  color: #5e7957;
+  /* 文字を12pxにします */
+  font-size: 12px;
+  /* 行間を文字サイズの1.6倍にします */
+  line-height: 1.6;
+}
+
+/* --- 保存エラー時の状態表示文字 --- */
+.storage-status.has-error {
+  /* エラー内容を赤茶色で目立たせます */
+  color: #a33d32;
+}
+
+/* --- タスクリスト全体のセクション --- */
+.task-section {
+  /* 入力フォームからリストまで37px空けます */
+  margin-top: 37px;
+}
+
+/* --- リスト見出し行の配置 --- */
+.section-heading {
+  /* 見出しと件数を横並びにします */
+  display: flex;
+  /* 上下方向の中央に揃えます */
+  align-items: center;
+  /* 見出しを左、件数を右へ配置します */
+  justify-content: space-between;
+  /* 見出しの下に13pxの余白を作ります */
+  margin-bottom: 13px;
+}
+
+/* --- 「Tasks」見出し --- */
+.section-heading h2 {
+  /* 見出しの余白をなくします */
+  margin: 0;
+  /* 文字を15pxにします */
+  font-size: 15px;
+  /* 太字にします */
+  font-weight: 700;
+}
+
+/* --- 完了済み削除ボタンの配置領域 --- */
+.task-actions {
+  /* ボタンを横並びにします */
+  display: flex;
+  /* ボタンを右端へ寄せます */
+  justify-content: flex-end;
+  /* 上に外側余白、上下に詰めた余白を指定します */
+  margin: -4px 0 12px;
+}
+
+/* --- 完了済みタスク削除ボタン --- */
+.clear-completed {
+  /* ボタンの上下に6px、左右に10pxの余白を作ります */
+  padding: 6px 10px;
+  /* 薄い灰緑色の枠線を引きます */
+  border: 1px solid #e8ebe6;
+  /* ボタンの角を丸くします */
+  border-radius: 8px;
+  /* ボタンの背景を白にします */
+  background: #fff;
+  /* ボタン文字を灰色にします */
+  color: #777f75;
+  /* 親要素と同じフォント設定を使います */
+  font: inherit;
+  /* ボタン文字を12pxにします */
+  font-size: 12px;
+  /* マウスカーソルを指マークにします */
+  cursor: pointer;
+  /* 背景色と文字色の変化を滑らかにします */
+  transition: background 160ms ease, color 160ms ease;
+}
+
+/* --- 削除ボタンにマウスを乗せた時の見た目 --- */
+.clear-completed:not(:disabled):hover {
+  /* 枠線を薄い赤にします */
+  border-color: #e7d5d2;
+  /* 背景を薄い赤白にします */
+  background: #fcf6f5;
+  /* 文字を赤茶色にします */
+  color: #a33d32;
+}
+
+/* --- タスク件数表示 --- */
+.task-count {
+  /* 件数表示の上下左右に余白を作ります */
+  padding: 4px 10px;
+  /* 丸いピル形にします */
+  border-radius: 999px;
+  /* 背景を薄い緑にします */
+  background: #f0f4ed;
+  /* 文字を濃い緑にします */
+  color: #5e7957;
+  /* 文字を12pxにします */
+  font-size: 12px;
+  /* 文字を太字にします */
+  font-weight: 600;
+}
+
+/* --- タスク項目を並べるリスト --- */
+.task-list {
+  /* 子要素を縦に並べるグリッドにします */
+  display: grid;
+  /* タスク項目の間を9px空けます */
+  gap: 9px;
+  /* リストの外側余白をなくします */
+  margin: 0;
+  /* リストの内側余白をなくします */
+  padding: 0;
+  /* リストの「・」マークを表示しません */
+  list-style: none;
+}
+
+/* --- 個々のタスク項目 --- */
+.task-item {
+  /* チェックボックスと文字を横並びにします */
+  display: flex;
+  /* チェックボックスと文字を上下中央に揃えます */
+  align-items: center;
+  /* チェックボックスと文字の間を13px空けます */
+  gap: 13px;
+  /* 項目の最小高さを54pxにします */
+  min-height: 54px;
+  /* 項目の上下に12px、左右に15pxの余白を作ります */
+  padding: 12px 15px;
+  /* 項目の枠線を薄い灰緑色にします */
+  border: 1px solid #edf0eb;
+  /* 項目の角を丸くします */
+  border-radius: 11px;
+  /* 項目の背景を白にします */
+  background: #fff;
+  /* タスク追加時に180msのフェード動作をします */
+  animation: appear 180ms ease-out;
+}
+
+/* --- タスクのチェックボックス --- */
+.task-checkbox {
+  /* チェックボックスの幅を18pxにします */
+  width: 18px;
+  /* チェックボックスの高さを18pxにします */
+  height: 18px;
+  /* チェックボックスの幅を固定します */
+  flex: 0 0 auto;
+  /* ブラウザ既定の余白をなくします */
+  margin: 0;
+  /* 選択した時のチェック色を濃い緑にします */
+  accent-color: #52764c;
+  /* マウスカーソルを指マークにします */
+  cursor: pointer;
+}
+
+/* --- タスクの文字部分 --- */
+.task-text {
+  /* 長い文字列は単語の途中でも折り返します */
+  overflow-wrap: anywhere;
+  /* タスク文字を14pxにします */
+  font-size: 14px;
+  /* 行間を文字サイズの1.6倍にします */
+  line-height: 1.6;
+}
+
+/* --- 完了済みタスクの文字スタイル --- */
+.task-item.is-complete .task-text {
+  /* 完了済みの文字を薄い灰色にします */
+  color: #a0a69e;
+  /* 完了済みの文字に取り消し線を引きます */
+  text-decoration: line-through;
+}
+
+/* --- タスクがない時の案内メッセージ --- */
+.empty-message {
+  /* メッセージの外側余白をなくします */
+  margin: 0;
+  /* 上下に25px、左右に16pxの余白を作ります */
+  padding: 25px 16px;
+  /* 点線の薄い灰緑色の枠を引きます */
+  border: 1px dashed #e2e8de;
+  /* 枠の角を丸くします */
+  border-radius: 11px;
+  /* メッセージ文字を薄い灰色にします */
+  color: #969d93;
+  /* 文字を13pxにします */
+  font-size: 13px;
+  /* 行間を文字サイズの1.9倍にします */
+  line-height: 1.9;
+  /* メッセージを中央揃えにします */
+  text-align: center;
+}
+
+/* --- メッセージ属性hiddenが付いた時の非表示設定 --- */
+.empty-message[hidden] {
+  /* タスクがある時は案内メッセージを表示しません */
+  display: none;
+}
+
+/* --- 見た目には隠して読み上げ用に残す文字 --- */
+.visually-hidden {
+  /* 通常のレイアウトから取り出します */
+  position: absolute;
+  /* 幅を1pxにします */
+  width: 1px;
+  /* 高さを1pxにします */
+  height: 1px;
+  /* 中身がはみ出さないように隠します */
+  overflow: hidden;
+  /* 古いブラウザ向けの切り抜き範囲を指定します */
+  clip: rect(0, 0, 0, 0);
+  /* 改行させず一行にします */
+  white-space: nowrap;
+  /* 対応ブラウザ向けに1pxの範囲へ切り抜きます */
+  clip-path: inset(50%);
+}
+
+/* --- タスク追加時の登場アニメーション定義 --- */
+@keyframes appear {
+  /* 動き始めは透明で4px下にあります */
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  /* 終了時は不透明で元の位置にあります */
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- 画面幅520px以下のスマートフォン向け設定 --- */
+@media (max-width: 520px) {
+  /* スマートフォンでは上下左右の余白を狭くします */
+  body {
+    padding: 28px 14px;
+  }
+
+  /* カードの内側余白と角丸みを小さくします */
+  .todo-app {
+    padding: 30px 22px;
+    border-radius: 19px;
+  }
+
+  /* 追加ボタンの左右余白を小さくします */
+  .task-form button {
+    padding: 0 14px;
+  }
+}
+
+/* --- 動きを減らす設定を選択した利用者向けの設定 --- */
+@media (prefers-reduced-motion: reduce) {
+  /* 対象要素と擬似要素すべての動きを抑えます */
+  *,
+  *::before,
+  *::after {
+    /* アニメーション時間をほぼ0にします */
+    animation-duration: 0.01ms !important;
+    /* アニメーションを1回だけ実行します */
+    animation-iteration-count: 1 !important;
+    /* 自動スクロールを止めます */
+    scroll-behavior: auto !important;
+    /* 色やサイズの変化時間もほぼ0にします */
+    transition-duration: 0.01ms !important;
+  }
+}

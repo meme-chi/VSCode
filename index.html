@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ToDoリスト</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="todo-app">
+    <header class="app-header">
+      <p class="eyebrow">MY DAILY PLAN</p>
+      <h1>ToDoリスト</h1>
+      <p class="subtitle">今日やることを、ひとつずつ。</p>
+    </header>
+
+    <form class="task-form" id="task-form">
+      <label class="visually-hidden" for="task-input">新しいタスク</label>
+      <input
+        id="task-input"
+        name="task"
+        type="text"
+        placeholder="タスクを入力してください"
+        maxlength="120"
+        autocomplete="off"
+        required
+      >
+      <button type="submit">追加する</button>
+    </form>
+    <p class="storage-status" id="storage-status" role="status" aria-live="polite" hidden></p>
+
+    <section class="task-section" aria-labelledby="task-heading">
+      <div class="section-heading">
+        <h2 id="task-heading">やること</h2>
+        <span class="task-count" id="task-count" aria-live="polite">0件</span>
+      </div>
+      <div class="task-actions">
+        <button class="clear-completed" id="clear-completed" type="button" disabled>完了済みを一括削除</button>
+      </div>
+      <ul class="task-list" id="task-list"></ul>
+      <p class="empty-message" id="empty-message">タスクはまだありません。<br>まずは今日やることを追加しましょう。</p>
+    </section>
+  </main>
+
+  <script>
+    const form = document.querySelector("#task-form");
+    const input = document.querySelector("#task-input");
+    const list = document.querySelector("#task-list");
+    const count = document.querySelector("#task-count");
+    const emptyMessage = document.querySelector("#empty-message");
+    const clearCompletedButton = document.querySelector("#clear-completed");
+    const storageStatus = document.querySelector("#storage-status");
+    const storageKey = "simple-todo-tasks";
+    let tasks = [];
+    let loadError = false;
+
+    function showStorageError(message) {
+      storageStatus.textContent = message;
+      storageStatus.hidden = false;
+      storageStatus.classList.add("has-error");
+    }
+
+    function saveTasks() {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(tasks));
+        storageStatus.hidden = true;
+        storageStatus.classList.remove("has-error");
+      } catch {
+        showStorageError("タスクを保存できませんでした。ブラウザの保存領域を確認してください。");
+      }
+    }
+
+    function renderTasks() {
+      list.replaceChildren();
+      tasks.forEach((task, index) => {
+        const item = document.createElement("li");
+        item.className = `task-item${task.completed ? " is-complete" : ""}`;
+
+        const checkbox = document.createElement("input");
+        checkbox.className = "task-checkbox";
+        checkbox.type = "checkbox";
+        checkbox.checked = task.completed;
+        checkbox.setAttribute("aria-label", `${task.text}を${task.completed ? "未完了" : "完了"}にする`);
+        checkbox.addEventListener("change", () => {
+          tasks[index].completed = checkbox.checked;
+          saveTasks();
+          renderTasks();
+          list.children[index].querySelector(".task-checkbox").focus();
+        });
+
+        const label = document.createElement("span");
+        label.className = "task-text";
+        label.textContent = task.text;
+
+        item.append(checkbox, label);
+        list.append(item);
+      });
+
+      const remaining = tasks.filter((task) => !task.completed).length;
+      count.textContent = `${remaining}件`;
+      emptyMessage.hidden = tasks.length > 0 || loadError;
+      clearCompletedButton.disabled = !tasks.some((task) => task.completed);
+    }
+
+    try {
+      const savedTasks = localStorage.getItem(storageKey);
+      if (savedTasks !== null) {
+        const parsedTasks = JSON.parse(savedTasks);
+        if (!Array.isArray(parsedTasks) || !parsedTasks.every((task) =>
+          task && typeof task.text === "string" && typeof task.completed === "boolean"
+        )) {
+          throw new Error("保存データの形式が正しくありません。");
+        }
+        tasks = parsedTasks;
+      }
+    } catch {
+      loadError = true;
+      showStorageError("保存済みのタスクを読み込めません。データを保護するため、操作を停止しています。");
+      form.querySelector("button").disabled = true;
+      input.disabled = true;
+      clearCompletedButton.disabled = true;
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const text = input.value.trim();
+      if (!text) {
+        input.focus();
+        return;
+      }
+
+      tasks.push({ text, completed: false });
+      input.value = "";
+      saveTasks();
+      renderTasks();
+      input.focus();
+    });
+
+    clearCompletedButton.addEventListener("click", () => {
+      tasks = tasks.filter((task) => !task.completed);
+      saveTasks();
+      renderTasks();
+    });
+
+    renderTasks();
+  </script>
+</body>
+</html>
