@@ -1,0 +1,32 @@
+name: contact-demo
+
+services:
+  api:
+    build:
+      context: .\contact-demo\api
+    environment:
+      DATABASE_PATH: /data/submissions.db
+    volumes:
+      - submissions_data:/data
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health').read()"
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  web:
+    build:
+      context: .\contact-demo\web
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "8000:80"
+
+volumes:
+  submissions_data:
